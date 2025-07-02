@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Retirement Journey - A Financial Plan for Mr. Vivek Tuli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive dashboard that tells a financial story in five parts: 1. The Goal (a high-level summary of the main financial target and current standing, including detailed client profile and income projections, now with an explicit box for total current assets), 2. Current Assets Snapshot (detailing initial values and expected returns), 3. Current Assets & Projected Growth (visualizing how current investments will mature), 4. Bridging the Gap (an interactive tool to explore the SIP solution with explicit calculation context), and 5. Summary & Next Steps (including legacy planning). This structure was chosen over a linear report format to make the complex financial data more digestible and engaging. It allows the client, Mr. Tuli, to immediately see the key figures, understand the projections visually, and actively participate in finding the solution, fostering a sense of ownership and clarity. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Client Profile & Goals (Age, Retirement Age, Income Needs, Corpus Target, Legacy). Goal: Inform. Viz: Structured text blocks with key figures, now with distinct background colors. Interaction: None. Justification: Provides foundational context for the entire plan with improved visual hierarchy. Method: HTML/Tailwind.
+        - Report Info: Main Financial Summary (Total Current Assets, Target Corpus, Projected Corpus, Shortfall). Goal: Inform. Viz: Large text key metrics in distinct colored boxes. Interaction: None. Justification: Provides an immediate, high-impact summary of the core financial situation, including the starting asset base. Method: HTML/Tailwind.
+        - Report Info: Current Financial Standing (MFs, Land values, returns). Goal: Inform. Viz: Key metrics in text. Interaction: None. Justification: Clearly states the starting point of the financial journey. Method: HTML/Tailwind.
+        - Report Info: Asset Growth (MFs & Land over 10 years, including projected final values). Goal: Show Change/Compare. Viz: Stacked Bar Chart with explicit final values. Interaction: Hover tooltips for yearly values. Justification: Visually demonstrates the power of compounding and the contribution of each asset class to the total portfolio over time, reinforced by explicit final numbers. Library: Chart.js (Canvas).
+        - Report Info: SIP contribution to cover the shortfall (including calculation context). Goal: Explore Relationships. Viz: Range Slider + Dynamic Line Chart. Interaction: User drags a slider to adjust the monthly SIP amount, and the line chart instantly updates to show the projected growth and its impact on covering the shortfall. Justification: This is the core interactive element. It transforms the "solution" from a static number into a dynamic tool, allowing the client to see the direct relationship between their monthly investment and achieving their retirement goal, with clear calculation context. Library: Chart.js (Canvas) + Vanilla JS.
+        - Report Info: Legacy Planning. Goal: Inform. Viz: Text block. Interaction: None. Justification: Addresses a specific client goal. Method: HTML/Tailwind.
+        - Report Info: All textual summaries and next steps. Goal: Inform. Viz: Styled text blocks/lists. Interaction: None. Justification: Provides clear, readable context and actionable next steps. Method: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #d1d5db; /* gray-300 */
+            border-radius: 9999px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type=range]:hover {
+            opacity: 1;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #1e40af; /* blue-800 */
+            cursor: pointer;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #1e40af; /* blue-800 */
+            cursor: pointer;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl">
+        
+        <header class="text-center mb-10">
+            <!-- Test image: a small red square to check Base64 rendering -->
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/Pchq4AAAAABJRU5ErkJggg==" alt="Funds Grip Logo Test" class="mx-auto mb-4 rounded-md h-auto max-w-[150px]">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Your Retirement Journey</h1>
+            <p class="mt-2 text-lg text-gray-600">A Financial Plan for Mr. Vivek Tuli</p>
+            <p class="mt-1 text-sm text-gray-500">Prepared by: Tarun Gupta, Prime Fundsgrip Private Limited</p>
+        </header>
+
+        <main class="space-y-12">
+
+            <!-- Section 1: Client Profile & Goals -->
+            <section id="client-profile" class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Client Profile & Retirement Goals</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+                    <div class="bg-blue-50 p-5 rounded-lg border border-blue-200">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-2">Personal Details</h3>
+                        <p><span class="font-medium">Client Age:</span> 48 years</p>
+                        <p><span class="font-medium">Retirement Age Goal:</span> 58 years (Target Retirement in 10 years)</p>
+                    </div>
+                    <div class="bg-green-50 p-5 rounded-lg border border-green-200">
+                        <h3 class="text-lg font-semibold text-green-800 mb-2">Desired Monthly Income at Retirement</h3>
+                        <p><span class="font-medium">Current Equivalent:</span> ₹2,00,000 per month</p>
+                        <p><span class="font-medium">Inflation Rate:</span> 7% per annum</p>
+                        <p><span class="font-medium">Projected Income Needed (after 10 years):</span> ₹4,00,000 per month <span id="calculatedInflationAdjustedIncome" class="text-sm text-gray-500"></span></p>
+                    </div>
+                    <div class="bg-purple-50 p-5 rounded-lg border border-purple-200">
+                        <h3 class="text-lg font-semibold text-purple-800 mb-2">Corpus Goals</h3>
+                        <p><span class="font-medium">Desired Retirement Corpus (Liquid):</span> ₹6 Crores</p>
+                        <p class="text-sm text-gray-600">(Calculated to support ₹4 lakhs/month income after 10 years, adjusted for inflation.)</p>
+                        <p><span class="font-medium">Legacy Goal:</span> To leave a substantial corpus for your children.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Your Financial Snapshot -->
+            <section id="goal" class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Your Financial Snapshot: Goals vs. Reality</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                    <div class="bg-yellow-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-yellow-800">Total Current Assets</h3>
+                        <p class="text-4xl font-bold text-yellow-900 mt-2">₹1.80 Cr</p>
+                        <p class="text-sm text-yellow-700 mt-1">(MFs: ₹1 Cr + Land: ₹80 L)</p>
+                    </div>
+                    <div class="bg-blue-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-800">Target Corpus</h3>
+                        <p class="text-4xl font-bold text-blue-900 mt-2">₹6 Cr</p>
+                        <p class="text-sm text-blue-700 mt-1">Needed after 10 years.</p>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-green-800">Projected Corpus</h3>
+                        <p class="text-4xl font-bold text-green-900 mt-2">₹5.18 Cr</p>
+                        <p class="text-sm text-green-700 mt-1">From growth of current assets.</p>
+                    </div>
+                    <div class="bg-red-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-red-800">The Shortfall</h3>
+                        <p class="text-4xl font-bold text-red-900 mt-2">₹0.82 Cr</p>
+                        <p class="text-sm text-red-700 mt-1">The gap we need to bridge.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 3: Current Financial Standing Snapshot (Detailed) -->
+            <section id="current-standing-details" class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Current Financial Standing Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                    <div class="bg-blue-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-800">Mutual Funds (MFs)</h3>
+                        <p class="text-4xl font-bold text-blue-900 mt-2">₹1 Crore</p>
+                        <p class="text-sm text-blue-700 mt-1">Expected Annual Return: 12%</p>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-green-800">Land Value</h3>
+                        <p class="text-4xl font-bold text-green-900 mt-2">₹80 Lakhs</p>
+                        <p class="text-sm text-green-700 mt-1">Expected Annual Appreciation: 10%</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Projected Asset Growth -->
+            <section id="growth" class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-2">Projected Asset Growth Over 10 Years</h2>
+                 <p class="text-center text-gray-600 mb-6">This chart illustrates how your existing Mutual Funds and Land assets are expected to grow and compound over the next 10 years, forming the foundation of your retirement corpus. Below are the projected values:</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-8">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h3 class="text-md font-semibold text-gray-800">Projected MFs Value</h3>
+                        <p class="text-xl font-bold text-blue-800 mt-1">₹3.105 Crores</p>
+                        <p class="text-xs text-gray-600">(₹1 Cr * (1+0.12)<sup>10</sup>)</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h3 class="text-md font-semibold text-gray-800">Projected Land Value</h3>
+                        <p class="text-xl font-bold text-green-800 mt-1">₹2.07 Crores</p>
+                        <p class="text-xs text-gray-600">(₹0.80 Cr * (1+0.10)<sup>10</sup>)</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h3 class="text-md font-semibold text-gray-800">Total Projected Corpus</h3>
+                        <p class="text-xl font-bold text-purple-800 mt-1">₹5.175 Crores</p>
+                        <p class="text-xs text-gray-600">(Excluding any new SIPs)</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="assetGrowthChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Section 5: Bridging the Gap -->
+            <section id="action-plan" class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-2">Action Plan: Bridging the Shortfall with a SIP</h2>
+                <p class="text-center text-gray-600 mb-6">Based on your target liquid corpus of ₹6 Crores and your projected assets of ₹5.175 Crores, there is a **shortfall of ₹0.825 Crores (₹82.5 Lakhs)**. To cover this gap over the next 10 years, a Systematic Investment Plan (SIP) is recommended.</p>
+                <p class="text-center text-gray-600 mb-6">Use the slider below to explore how different monthly SIP amounts can grow over 10 years (at an assumed 12% annual return) and help you reach your retirement goal. A monthly SIP of approximately ₹36,000 - ₹40,000 would be required to accumulate ₹82.5 Lakhs. Your initial estimate for a ₹1 Crore shortfall suggested a ₹45,000 monthly SIP, which would provide an even larger buffer.</p>
+                
+                <div class="max-w-xl mx-auto">
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="sipSlider" class="font-semibold text-lg">Monthly SIP Amount:</label>
+                        <span id="sipAmountLabel" class="text-2xl font-bold text-blue-800">₹40,000</span>
+                    </div>
+                    <input id="sipSlider" type="range" min="10000" max="100000" value="40000" step="1000" class="w-full">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>₹10k</span>
+                        <span>₹100k</span>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                     <div class="chart-container">
+                        <canvas id="sipGrowthChart"></canvas>
+                    </div>
+                </div>
+                <div id="sipAnalysisResult" class="mt-6 text-center text-lg font-semibold bg-gray-100 p-4 rounded-lg max-w-2xl mx-auto">
+                    Loading analysis...
+                </div>
+            </section>
+
+            <!-- Section 6: Legacy Planning -->
+            <section id="legacy-planning" class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Legacy Planning</h2>
+                <p class="text-center text-gray-600">Your aspiration to leave a substantial corpus for your children is a commendable long-term goal. The primary focus of this plan is to ensure your comfortable retirement income. Any growth beyond the ₹6 Crore retirement corpus, or the strategic allocation of your existing assets (such as the land value), can significantly contribute to your legacy. We can further strategize on this aspect once your primary retirement income goal is firmly established.</p>
+            </section>
+
+            <!-- Section 7: Summary & Next Steps -->
+            <section id="summary" class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Summary & Your Path Forward</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Key Takeaways</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">&#10004;</span>
+                                <div><span class="font-bold">Clear Goal:</span> Your objective is to build a ₹6 Crore liquid corpus to support a post-inflation monthly income of ₹4 Lakhs.</div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-green-500 mr-3 mt-1">&#10004;</span>
+                                <div><span class="font-bold">Strong Foundation:</span> Your existing assets are projected to grow to approximately ₹5.175 Crores, covering a significant portion of your goal.</div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-red-500 mr-3 mt-1">&#10004;</span>
+                                <div><span class="font-bold">Actionable Plan:</span> A monthly SIP can effectively bridge the identified shortfall of ~₹82.5 Lakhs. A SIP of ~₹40,000 is the recommended starting point.</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Proposed Next Steps</h3>
+                         <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="font-bold text-blue-600 mr-3">1.</span>
+                                <div><span class="font-bold">Discuss & Finalize:</span> We invite you to review these projections and assumptions, and we are available to discuss any questions you may have.</div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="font-bold text-blue-600 mr-3">2.</span>
+                                <div><span class="font-bold">Implement SIP:</span> We will assist you in initiating the proposed SIP at your earliest convenience to maximize the benefits of compounding.</div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="font-bold text-blue-600 mr-3">3.</span>
+                                <div><span class="font-bold">Regular Review:</span> We will schedule periodic reviews to monitor your progress, adjust the plan based on market dynamics, and refine your financial strategy as needed.</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        
+        <footer class="text-center mt-12 py-6 border-t flex flex-col items-center">
+            <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-4xl mb-8 flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
+                <p class="text-gray-600 text-sm mb-4 sm:mb-0 sm:w-1/2">Your proactive engagement is the key to a secure retirement.</p>
+                <div class="text-sm text-gray-700 flex flex-col items-center sm:items-end sm:w-1/2">
+                    <p class="font-bold">Tarun Gupta</p>
+                    <p class="text-right">(MFD NISM Certified and AMFI & SEBI approved)</p>
+                    <p>Mail: <a href="mailto:rajeev.bharti@fundsgrip.com" class="text-blue-600 hover:underline">rajeev.bharti@fundsgrip.com</a></p>
+                    <p>Phone No: 8881888661</p>
+                    <p>Website: <a href="http://www.fundsgrip.com" target="_blank" class="text-blue-600 hover:underline">www.fundsgrip.com</a></p>
+                    <p>Prime Fundsgrip Private Limited</p>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">&copy; 2025 Prime Fundsgrip Private Limited. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const financialData = {
+        initialMf: 10000000, // 1 Crore
+        initialLand: 8000000, // 80 Lakhs
+        mfReturn: 0.12,
+        landReturn: 0.10,
+        sipReturn: 0.12,
+        years: 10,
+        targetCorpus: 60000000, // 6 Crores
+        shortfall: 8250000, // 82.5 Lakhs
+        inflationRate: 0.07,
+        currentMonthlyIncome: 200000
+    };
+
+    // Calculate projected monthly income needed after 10 years
+    const projectedMonthlyIncomeNeeded = financialData.currentMonthlyIncome * Math.pow((1 + financialData.inflationRate), financialData.years);
+    
+    // Update the client profile section with the calculated value
+    const calculatedInflationAdjustedIncomeElement = document.getElementById('calculatedInflationAdjustedIncome');
+    if (calculatedInflationAdjustedIncomeElement) {
+        calculatedInflationAdjustedIncomeElement.textContent = `(approx. ₹${Math.round(projectedMonthlyIncomeNeeded).toLocaleString('en-IN')})`;
+    }
+
+
+    const formatCurrency = (value) => {
+        if (value >= 10000000) {
+            return `₹${(value / 10000000).toFixed(2)} Cr`;
+        }
+        return `₹${(value / 100000).toFixed(2)} L`;
+    };
+
+    function generateAssetGrowthData() {
+        const labels = Array.from({ length: financialData.years + 1 }, (_, i) => `Year ${i}`);
+        const mfData = [];
+        const landData = [];
+
+        for (let i = 0; i <= financialData.years; i++) {
+            mfData.push(financialData.initialMf * Math.pow(1 + financialData.mfReturn, i));
+            landData.push(financialData.initialLand * Math.pow(1 + financialData.landReturn, i));
+        }
+        return { labels, mfData, landData };
+    }
+
+    const assetGrowthData = generateAssetGrowthData();
+    const assetGrowthCtx = document.getElementById('assetGrowthChart').getContext('2d');
+    const assetGrowthChart = new Chart(assetGrowthCtx, {
+        type: 'bar',
+        data: {
+            labels: assetGrowthData.labels,
+            datasets: [
+                {
+                    label: 'Mutual Funds Value',
+                    data: assetGrowthData.mfData,
+                    backgroundColor: '#3b82f6', // blue-500
+                    borderColor: '#1e40af', // blue-800
+                    borderWidth: 1
+                },
+                {
+                    label: 'Land Value',
+                    data: assetGrowthData.landData,
+                    backgroundColor: '#22c55e', // green-500
+                    borderColor: '#15803d', // green-700
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += formatCurrency(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    title: { display: true, text: 'Years' }
+                },
+                y: {
+                    stacked: true,
+                    title: { display: true, text: 'Projected Value' },
+                    ticks: {
+                        callback: function(value) {
+                            return formatCurrency(value);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const sipSlider = document.getElementById('sipSlider');
+    const sipAmountLabel = document.getElementById('sipAmountLabel');
+    const sipAnalysisResult = document.getElementById('sipAnalysisResult');
+    const sipGrowthCtx = document.getElementById('sipGrowthChart').getContext('2d');
+    let sipGrowthChart;
+
+    function calculateSipGrowthYearly(monthlySip) {
+        const data = [0]; // Start with 0 at Year 0
+        let futureValue = 0;
+        const monthlyRate = financialData.sipReturn / 12;
+        const months = financialData.years * 12;
+
+        for (let i = 1; i <= months; i++) {
+            futureValue = (futureValue + monthlySip) * (1 + monthlyRate);
+            if (i % 12 === 0) {
+                data.push(futureValue);
+            }
+        }
+        return data;
+    }
+    
+    function createOrUpdateSipChart(sipData) {
+        const labels = Array.from({ length: financialData.years + 1 }, (_, i) => `Year ${i}`);
+        const finalValue = sipData.length > 0 ? sipData[sipData.length - 1] : 0;
+        
+        // This is the target line data
+        const targetLineData = Array(labels.length).fill(financialData.shortfall);
+
+        if (sipGrowthChart) {
+            sipGrowthChart.data.labels = labels;
+            sipGrowthChart.data.datasets[0].data = sipData;
+            sipGrowthChart.update();
+        } else {
+            sipGrowthChart = new Chart(sipGrowthCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                    {
+                        label: 'SIP Accumulated Value',
+                        data: sipData,
+                        borderColor: '#1e40af', // blue-800
+                        backgroundColor: 'rgba(30, 64, 175, 0.1)',
+                        fill: true,
+                        tension: 0.2
+                    },
+                    {
+                        label: 'Shortfall Target',
+                        data: targetLineData,
+                        borderColor: '#ef4444', // red-500
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: false },
+                         tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                         x: {
+                            title: { display: true, text: 'Years' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Value' },
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        updateSipAnalysis(finalValue);
+    }
+    
+    function updateSipAnalysis(finalValue) {
+        const difference = finalValue - financialData.shortfall;
+        if (difference >= 0) {
+            sipAnalysisResult.className = 'mt-6 text-center text-lg font-semibold bg-green-100 text-green-800 p-4 rounded-lg max-w-2xl mx-auto transition-all duration-300';
+            sipAnalysisResult.innerHTML = `With this SIP, you are on track to accumulate <span class="font-bold">${formatCurrency(finalValue)}</span>, exceeding your goal by <span class="font-bold">${formatCurrency(difference)}</span>!`;
+        } else {
+            sipAnalysisResult.className = 'mt-6 text-center text-lg font-semibold bg-red-100 text-red-800 p-4 rounded-lg max-w-2xl mx-auto transition-all duration-300';
+             sipAnalysisResult.innerHTML = `This SIP accumulates <span class="font-bold">${formatCurrency(Math.abs(finalValue))}</span>, leaving a remaining shortfall of <span class="font-bold">${formatCurrency(Math.abs(difference))}</span>.`;
+        }
+    }
+
+    sipSlider.addEventListener('input', (e) => {
+        const currentSip = parseInt(e.target.value);
+        sipAmountLabel.textContent = `₹${currentSip.toLocaleString('en-IN')}`;
+        const newSipData = calculateSipGrowthYearly(currentSip);
+        createOrUpdateSipChart(newSipData);
+    });
+    
+    // Initial chart creation
+    const initialSipData = calculateSipGrowthYearly(parseInt(sipSlider.value));
+    createOrUpdateSipChart(initialSipData);
+
+});
+</script>
+
+</body>
+</html>
